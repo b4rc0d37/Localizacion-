@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es" >
+<head>
+  <meta charset="UTF-8">
+  <title>HORUS</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<pre id='console'></pre>
+<pre id='code'>
+var PI_BY_180 = Math.PI / 180,
+    halfw = window.innerWidth / 2,
+    halfh = window.innerHeight / 2,
+    mx = halfw,
+    my = halfh,
+    
+    
+██╗░░██╗░█████╗░██████╗░██╗░░░██╗░██████╗
+██║░░██║██╔══██╗██╔══██╗██║░░░██║██╔════╝
+███████║██║░░██║██████╔╝██║░░░██║╚█████╗░
+██╔══██║██║░░██║██╔══██╗██║░░░██║░╚═══██╗
+██║░░██║╚█████╔╝██║░░██║╚██████╔╝██████╔╝
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚═════╝░╚═════╝░
+    
+    
+    lastx = mx,
+    lasty = my,
+    angle = 0,
+    targetAngle = 0,
+    angleTimer = 2,
+    l = 100,
+    color = '#fff';
+
+var ctx = c.getContext('2d'),
+	cw = window.innerWidth,
+	ch = window.innerHeight,
+	last_time = Date.now(),
+	particles = [],
+  light;
+
+function drawCircle(fill_color, x, y, radius, speed, isLight) {
+	//ctx.save();
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  if(isLight) {
+    ctx.shadowBlur = 40;
+    ctx.shadowColor = color;
+  }
+	ctx.fillStyle = color;
+	ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+	ctx.fill();
+  ctx.stroke();
+  //ctx.restore();
+
+}
+
+function Particle(x, y, radius) {
+  this.x = x; this.y = y;
+  this.radius = radius;
+  this.speed = 80 + random(10, 30);
+}
+Particle.prototype = {
+   draw: function () {
+    drawCircle(color, this.x, this.y, this.radius, distance(this.tx,this.ty,this.x,this.y), this === light);
+  },
+  update: function (dt) {
+    var isLight = this === light;
+    if (isLight){
+      if (Math.random() > 0.975) {
+        //var center = getCenter();
+        this.tx = random(halfw - 100, halfw + 100);
+        this.ty = random(halfh - 100, halfh + 100);
+      }
+      this.tx += random(-10, 10);
+      this.ty += random(-10, 10);
+    }
+    this.time -= dt;
+    
+    if (!isLight && this.time && this.time < 0 ) {
+      var d = distance(light.x,light.y,this.x,this.y);
+      this.x += (light.x - this.x) * (1800 * light.radius / (d*d)) * dt;
+      this.y += (light.y - this.y) * (1800 * light.radius / (d*d)) * dt;
+      if (distance(light.x,light.y,this.x,this.y) < 10) { light.radius += 0.3; this.dead = 1; }
+    }
+    else {
+      this.x += (this.tx - this.x) * (isLight ? 700 : 400) * dt * dt;
+      this.y += (this.ty - this.y) * (isLight ? 700 : 400) * dt * dt;
+    }
+  }
+}
+function init () {
+	c.width = cw;
+	c.height = ch;
+  for (var i = l; i--;) {
+    particles.push(new Particle(random(10, cw), random(10,ch), 2));
+  }
+	loop();
+}
+
+
+██╗░░██╗░█████╗░██████╗░██╗░░░██╗░██████╗
+██║░░██║██╔══██╗██╔══██╗██║░░░██║██╔════╝
+███████║██║░░██║██████╔╝██║░░░██║╚█████╗░
+██╔══██║██║░░██║██╔══██╗██║░░░██║░╚═══██╗
+██║░░██║╚█████╔╝██║░░██║╚██████╔╝██████╔╝
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚═════╝░╚═════╝░
+
+function blast() {
+  var p;
+  for (var i = l; i--;) {
+    p = particles[i];
+    p.tx = random(10, cw);
+    p.ty = random(10, ch);
+    p.x = light ? light.x : halfw;
+    p.y = light ? light.y : halfh;
+    p.radius = random(1, 4);
+    p.angle = Math.atan2(p.ty - p.y, p.tx - p.x);
+    p.time = 0.2;
+    p.dead = false;
+  }
+  light = particles[random(0, particles.length - 1)];
+  light.x = halfw;
+  light.y = halfh;
+}
+function update (dt) {
+  for (var i = l; i--;) {
+    if (!particles[i].dead) {
+      particles[i].update(dt);
+    }
+  }
+}
+function draw() {
+  for (var i = l; i--;) {
+    if (!particles[i].dead) {
+      particles[i].draw();
+    }
+  }
+}
+
+function loop () {
+	var current_time = Date.now(),
+		dt = (current_time - last_time) / 1000;
+	last_time = current_time;
+//   ctx.globalCompositeOperation = "lighter";
+//   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.fillStyle = 'rgb(0, 0, 0)';
+	ctx.fillRect(0, 0, cw, ch);
+  update(dt);
+  draw();
+	requestAnimationFrame(loop);
+}
+
+function generateNoise(opacity) {
+   var canvas = document.createElement("canvas"),
+   ctx = canvas.getContext('2d'),
+   x, y,
+   number;
+ 
+   canvas.width = 45;
+   canvas.height = 45;
+ 
+   for ( x = 0; x < canvas.width; x++ ) {
+      for ( y = 0; y < canvas.height; y++ ) {
+         number = Math.floor( Math.random() * 60 );
+ 
+         ctx.fillStyle = "rgba(" + number + "," + number + "," + number + "," + opacity + ")";
+         ctx.fillRect(x, y, 1, 1);
+      }
+   }
+ 
+   document.querySelector('.js-overlay').style.backgroundImage = "url(" + canvas.toDataURL("image/png") + ")";
+}
+generateNoise(0.2);
+
+function getCenter() {
+  var mind = 99999, d, p, c = 0;
+  for (var i = l; i--;) {
+    if (!particles[i].dead && particles[i] != light) {
+      d = distance(light.x, light.y, particles[i].x, particles[i].y);
+      if (d < mind) { mind = d; p = particles[i]; }
+    }
+  }
+  return { x: p.x, y: p.y };
+}
+function random (start, end) {
+	if (arguments.length < 2) {
+		end = start;
+		start = 0;
+	}
+	return ~~(Math.random() * (end - start + 1)) + start;
+}
+function distance(x1, y1, x2, y2) {
+  return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+}
+
+
+window.addEventListener('mousemove', function (e) {
+  mx = e.pageX;
+  my = e.pageY;
+});
+
+window.addEventListener('click', function (e) {
+  blast();
+});
+
+init();
+blast();
+function dots() {
+
+	this.aDots = [];
+	this.aLines = [];
+	this.aExplode = [];
+
+	this.catched = 0;
+
+	this.radius = 200;
+	this.popRadius = 100;
+
+██╗░░██╗░█████╗░██████╗░██╗░░░██╗░██████╗
+██║░░██║██╔══██╗██╔══██╗██║░░░██║██╔════╝
+███████║██║░░██║██████╔╝██║░░░██║╚█████╗░
+██╔══██║██║░░██║██╔══██╗██║░░░██║░╚═══██╗
+██║░░██║╚█████╔╝██║░░██║╚██████╔╝██████╔╝
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚═════╝░╚═════╝░
+
+	if ( typeof dots.initialized == "undefined" ) {
+
+
+		dots.prototype.init = function()
+		{
+
+			
+		};
+
+		dots.prototype.rand = function( min, max )
+		{
+
+			return Math.random() * ( max - min) + min;
+
+		}
+
+
+		dots.prototype.addDot = function()
+		{
+
+			this.aDots.push( this.build_dot() );
+			
+		};
+
+		dots.prototype.build_dot = function()
+		{
+
+			var color = Math.floor( rand(0, 255) ) + ', ' + Math.floor( rand(0, 255) ) + ', ' + Math.floor( rand(0, 255) );
+
+
+			oDot = {
+
+				x 		: rand( 0, oSize.w ),
+
+				y 		: rand( 0, oSize.h ),
+
+				r 		: rand( 1, 2 ),
+
+				s 		: rand( 5, 10 ),
+
+				a 		: 0,
+
+				c 		: color
+
+			}
+
+			
+
+			if( this.check_mouse( oDot, this.popRadius ) )
+				return this.build_dot();
+			else
+				return oDot;
+		};
+
+
+		dots.prototype.addExplod = function( dot )
+		{
+    
+    
+██╗░░██╗░█████╗░██████╗░██╗░░░██╗░██████╗
+██║░░██║██╔══██╗██╔══██╗██║░░░██║██╔════╝
+███████║██║░░██║██████╔╝██║░░░██║╚█████╗░
+██╔══██║██║░░██║██╔══██╗██║░░░██║░╚═══██╗
+██║░░██║╚█████╔╝██║░░██║╚██████╔╝██████╔╝
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚═════╝░╚═════╝░
+
+			var nb = this.rand( 3, 8 );
+
+			for (var i = 0; i < nb; i++) {
+
+				this.aExplode.push( this.build_explod( dot ) );
+
+			};
+			
+		};
+
+
+		dots.prototype.build_explod = function( dot )
+		{
+
+
+			oExpl = {
+
+				sx 		: dot.x,
+
+				sy 		: dot.y,
+
+				tx 		: rand( dot.x - 300, dot.x + 300 ),
+
+				ty 		: rand( dot.y - 300, dot.y + 300 ),
+
+				a 		: 1,
+
+				speed   : this.rand( 3, 8 ),
+
+				c 		: dot.c
+
+			}
+
+			return oExpl;
+
+		};
+
+
+
+		dots.prototype.build_line = function( dot )
+		{
+
+
+			oLine = {
+
+				sx 		: oMouse.x,
+
+				sy 		: oMouse.y,
+
+				tx 		: dot.x,
+
+				ty 		: dot.y,
+
+
+			}
+
+			this.aLines.push( oLine );
+
+			
+		};
+
+		dots.prototype.check_mouse = function( dot, radius )
+		{
+
+			var rad = ( typeof( radius ) != 'undefined' )? radius : this.radius ;	
+
+			var dx = oMouse.x - dot.x;		
+			var dy = oMouse.y - dot.y;
+			var distance = Math.sqrt(dx * dx + dy * dy);
+
+			// detection collion circle
+			if ( distance < rad){
+			
+				return true;
+			
+			}else{
+				return false;
+			}
+		}
+
+██╗░░██╗░█████╗░██████╗░██╗░░░██╗░██████╗
+██║░░██║██╔══██╗██╔══██╗██║░░░██║██╔════╝
+███████║██║░░██║██████╔╝██║░░░██║╚█████╗░
+██╔══██║██║░░██║██╔══██╗██║░░░██║░╚═══██╗
+██║░░██║╚█████╔╝██║░░██║╚██████╔╝██████╔╝
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚═════╝░╚═════╝░
+		dots.prototype.check_out = function( dot )
+		{		
+
+			if( 
+				dot.x < 0  ||  dot.x > oSize.w || dot.y < 0  ||  dot.y > oSize.h
+			){
+
+				return true;
+
+			}else{
+
+				return false;
+			}
+
+		}
+
+
+
+
+		dots.prototype.get_explodes = function(){
+
+			for (var i = this.aDots.length - 1; i >= 0; i--) {
+
+				if( this.check_mouse( this.aDots[i] ) ){
+
+					this.addExplod( this.aDots[i] );
+					this.aDots.splice(i, 1);
+					this.catched++;
+
+				}
+
+			};
+
+		}
+
+
+		dots.prototype.update = function(){
+
+			this.update_dots();
+
+			this.update_explodes();
+
+		}
+
+██╗░░██╗░█████╗░██████╗░██╗░░░██╗░██████╗
+██║░░██║██╔══██╗██╔══██╗██║░░░██║██╔════╝
+███████║██║░░██║██████╔╝██║░░░██║╚█████╗░
+██╔══██║██║░░██║██╔══██╗██║░░░██║░╚═══██╗
+██║░░██║╚█████╔╝██║░░██║╚██████╔╝██████╔╝
+╚═╝░░╚═╝░╚════╝░╚═╝░░╚═╝░╚═════╝░╚═════╝░
+		dots.prototype.update_dots = function(){
+
+			this.aLines = [];
+
+			for (var i = this.aDots.length - 1; i >= 0; i--) {
+
+				if( this.check_out( this.aDots[i] ) ){
+
+					this.aDots.splice(i, 1);
+
+				}else{
+
+
+					if( this.check_mouse( this.aDots[i] ) )
+						this.build_line( this.aDots[i] );
+
+					//source
+					//http://stackoverflow.com/questions/14178782/how-can-i-make-my-character-move-diagonally
+					var speed = this.aDots[i].s,
+					tx = oMouse.x - this.aDots[i].x,
+					ty = oMouse.y - this.aDots[i].y,
+					dist = Math.sqrt(tx * tx + ty * ty);
+
+					if ( dist >= speed ) {
+
+						velX = ( tx / dist ) * speed;
+						velY = ( ty / dist ) * speed;
+						
+						if( !bMagnet ){
+							this.aDots[i].x -= velX;
+							this.aDots[i].y -= velY;
+						}else{
+							this.aDots[i].x += velX;
+							this.aDots[i].y += velY;
+						}
+					}
+					//fin source
+					
+					if( this.aDots[i].a < 100 )
+						this.aDots[i].a += 5;
+
+				}
+
+			};
+
+		}
+
+
+		dots.prototype.update_explodes = function(){
+
+
+			for (var i = this.aExplode.length - 1; i >= 0; i--) {
+
+				if( this.aExplode[i].a <= 0 ){
+					
+					this.aExplode.splice(i, 1);
+				
+				}else{
+
+					//source
+					//http://stackoverflow.com/questions/14178782/how-can-i-make-my-character-move-diagonally
+					var speed = this.aExplode[i].speed,
+					tx = this.aExplode[i].sx - this.aExplode[i].tx,
+					ty = this.aExplode[i].sy - this.aExplode[i].ty,
+					dist = Math.sqrt(tx * tx + ty * ty);
+
+					if ( dist >= speed ) {
+
+						velX = ( tx / dist ) * speed;
+						velY = ( ty / dist ) * speed;
+						
+						this.aExplode[i].sx -= velX;
+						this.aExplode[i].sy -= velY;
+					
+					}
+					//fin source
+
+
+					this.aExplode[i].a -= 0.05;
+
+				}
+
+ 
+			};
+
+		}
+
+
+		dots.prototype.draw_dots = function( ctx )
+		{
+
+			
+			this.aDots.map(function( dot ){
+
+				var a = rand( 3, 10 );
+				ctx.beginPath();
+				ctx.arc( dot.x, dot.y, dot.r, 0, 2 * Math.PI, false );
+				ctx.fillStyle = 'rgba( ' + dot.c + ', ' + dot.a / 100 + ')'
+				ctx.fill();
+
+
+			});
+
+		}
+
+
+		dots.prototype.draw_line = function( ctx )
+		{
+
+			
+			this.aLines.map(function( line ){
+
+				ctx.beginPath();
+				ctx.moveTo( line.sx , line.sy );
+				ctx.lineTo( line.tx, line.ty);
+				ctx.strokeStyle = "rgba( 255, 255, 255, 0.08 )";
+				ctx.setLineDash([5]);
+				ctx.stroke();
+
+			});
+
+		}
+
+
+		dots.prototype.draw_explode = function( ctx )
+		{
+			
+			this.aExplode.map(function( expl ){
+
+				ctx.beginPath();
+				ctx.arc( expl.sx, expl.sy, 2, 0, 2 * Math.PI);
+				ctx.fillStyle = 'rgba( ' + expl.c + ', ' + expl.a + ')';
+				ctx.fill();
+
+			});
+
+		}
+
+
+
+		dots.prototype.draw = function( ctx )
+		{
+
+			this.draw_explode( ctx );
+			this.draw_dots( ctx );
+			this.draw_line( ctx );
+			
+
+		}
+
+
+		
+
+
+
+
+
+		this.init();
+		dots.initialized = true;
+	}
+
+
+
+}
+
+
+
+/** global vars **/
+var oSize = {
+	h : document.body.clientHeight,
+	w : document.body.clientWidth
+};
+var oMouse = {
+	x : oSize.w / 2,
+	y : oSize.h / 2
+};
+var bMagnet = false;
+
+//canvas dots
+var oCdots = document.getElementById('dots');
+var oDctx = oCdots.getContext('2d');
+
+
+oCdots.height = oSize.h;
+oCdots.width = oSize.w;
+
+
+
+
+
+rand = function( min, max ){ return Math.random() * ( max - min) + min; }
+update_mouse = function( _e ){
+
+	oMouse.y = _e.pageY;
+	oMouse.x = _e.pageX;
+
+}
+onresize = function () {
+	oSize.w = oCdots.width = window.innerWidth;
+	oSize.h = oCdots.height = window.innerHeight;
+}
+toggle_magnet = function(){
+	
+	bMagnet = !bMagnet;
+	
+}
+toglle_mode = function(){
+	document.getElementById('easy').setAttribute("class", "");
+	document.getElementById('hard').setAttribute("class", "");
+}
+easy_mode = function(){
+	toglle_mode();
+	oDots.catched = c = 0;
+	oDots.radius = 200;
+	oDots.popRadius = 100;
+	document.getElementById('easy').setAttribute("class", "active");
+}
+hard_mode = function(){
+	toglle_mode();
+	oDots.catched = c = 0;
+	oDots.radius = 80;
+	oDots.popRadius = 300;
+	document.getElementById('hard').setAttribute("class", "active");
+}
+
+
+
+
+
+
+
+
+
+var oDots = new dots();
+
+
+document.addEventListener('onresize', onresize, false);
+window.onresize();
+document.addEventListener('mousemove', update_mouse, false);
+document.body.addEventListener('click', oDots.get_explodes.bind( oDots ), false);
+
+document.getElementById('easy').addEventListener('click', easy_mode, false);
+document.getElementById('hard').addEventListener('click', hard_mode, false);
+
+
+var c = 0;
+/** ANIMATION **/
+function render(){
+
+	//oDctx.clearRect(0, 0, oSize.w, oSize.h );
+	oDctx.fillStyle = "rgba( 16, 39, 68, 0.5 )";
+
+	oDctx.fillRect( 0, 0, oSize.w, oSize.h );
+
+	oDots.update();
+
+	for (var i = 0; i <= 5; i++) {
+		oDots.addDot();
+	};
+
+	oDots.draw( oDctx );
+
+	requestAnimationFrame( render );
+
+	
+	if( c < oDots.catched )
+		c++;
+	
+	
+	document.getElementById('count').innerHTML = c + ' points' ;
+
+}
+render();
+(function($) {
+
+    var width, height, strokecolor, canvas, ctx, points, target;
+
+    initHeader();
+    initAnimation();
+    addListeners();
+
+    function initHeader() {
+        
+        width = window.innerWidth;
+        height = window.innerHeight;
+        target = {x: width/2, y: height/2};    
+        
+        canvas = document.getElementById('canvas');
+        strokecolor = canvas.getAttribute("data-strokecolor");        
+        canvas.width = width;
+        canvas.height = height;
+        ctx = canvas.getContext('2d');
+
+        // create points
+        points = [];
+        for(var x = 0; x < width; x = x + width/20) {
+            for(var y = 0; y < height; y = y + height/20) {
+                var px = x + Math.random()*width/20;
+                var py = y + Math.random()*height/20;
+                var p = {x: px, originX: px, y: py, originY: py };
+                points.push(p);
+            }
+        }
+
+        // for each point find the 5 closest points
+        for(var i = 0; i < points.length; i++) {
+            var closest = [];
+            var p1 = points[i];
+            for(var j = 0; j < points.length; j++) {
+                var p2 = points[j]
+                if(!(p1 == p2)) {
+                    var placed = false;
+                    for(var k = 0; k < 5; k++) {
+                        if(!placed) {
+                            if(closest[k] == undefined) {
+                                closest[k] = p2;
+                                placed = true;
+                            }
+                        }
+                    }
+
+                    for(var k = 0; k < 5; k++) {
+                        if(!placed) {
+                            if(getDistance(p1, p2) < getDistance(p1, closest[k])) {
+                                closest[k] = p2;
+                                placed = true;
+                            }
+                        }
+                    }
+                }
+            }
+            p1.closest = closest;
+        }
+
+        // assign a circle to each point
+        for(var i in points) {
+            var c = new Circle(points[i], 2+Math.random()*2, 'rgba(255,255,255,0.3)');
+            points[i].circle = c;
+        }
+    }
+
+    // Event handling
+    function addListeners() {
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('resize', resize);
+    }
+
+    function mouseMove(e) {
+        var posx = posy = 0;
+        if (e.pageX || e.pageY) {
+            posx = e.pageX;
+            posy = e.pageY;
+        }
+        else if (e.clientX || e.clientY)    {
+            posx = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+            posy = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        }
+        target.x = posx;
+        target.y = posy;
+    }
+
+    function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;        
+        canvas.width = width;
+        canvas.height = height;
+    }
+
+    // animation
+    function initAnimation() {
+        animate();
+        for(var i in points) {
+            shiftPoint(points[i]);
+        }
+    }
+
+    function animate() {
+        ctx.clearRect(0,0,width,height);
+        for(var i in points) {
+            // detect points in range
+            if(Math.abs(getDistance(target, points[i])) < 4000) {
+                points[i].active = 0.4;
+                points[i].circle.active = 0.5;
+            } else if(Math.abs(getDistance(target, points[i])) < 20000) {
+                points[i].active = 0.3;
+                points[i].circle.active = 0.4;
+            } else if(Math.abs(getDistance(target, points[i])) < 40000) {
+                points[i].active = 0.2;
+                points[i].circle.active = 0.3;
+            } else {
+                points[i].active = 0.1;
+                points[i].circle.active = 0.2;
+            }
+
+            drawLines(points[i]);
+            points[i].circle.draw();
+        }
+        requestAnimationFrame(animate);
+    }
+
+    function shiftPoint(p) {
+        TweenLite.to(p, 1+1*Math.random(), {
+          x:p.originX-10+Math.random()*20,
+          y:p.originY-10+Math.random()*20,
+          ease:Sine.easeInOut,
+          onComplete: function() {
+              shiftPoint(p);
+          }});
+    }
+
+    // Canvas manipulation
+    function drawLines(p) {
+        if(!p.active) return;
+        for(var i in p.closest) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.closest[i].x, p.closest[i].y);
+            ctx.strokeStyle = 'rgba('+strokecolor+','+ p.active+')';
+            ctx.stroke();
+        }
+    }
+
+    function Circle(pos,rad,color) {
+        var _this = this;
+
+        // constructor
+        (function() {
+            _this.pos = pos || null;
+            _this.radius = rad || null;
+            _this.color = color || null;
+        })();
+
+        this.draw = function() {
+            if(!_this.active) return;
+            ctx.beginPath();
+            ctx.arc(_this.pos.x, _this.pos.y, _this.radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'rgba('+strokecolor+','+ _this.active+')';
+            ctx.fill();
+        };
+    }
+
+    // Util
+    function getDistance(p1, p2) {
+        return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
+    }
+    
+})(jQuery);
+</pre>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>

